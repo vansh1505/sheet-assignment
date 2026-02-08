@@ -16,6 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import Navbar from '@/components/Navbar';
 import TopicCard from '@/components/TopicCard';
+import { SheetProgress, OverallProgressCard } from '@/components/SheetStats';
 import {
   AddTopicModal,
   AddSubTopicModal,
@@ -25,7 +26,7 @@ import { useSheetStore } from '@/store/sheetStore';
 import { transformAPIData } from '@/lib/transform';
 import type { APIResponse } from '@/types/sheet';
 import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
+
 const API_URL =
   'https://node.codolio.com/api/question-tracker/v1/sheet/public/get-sheet-by-slug/striver-sde-sheet';
 
@@ -118,7 +119,7 @@ export default function Home() {
 
   return (
     <div className={darkMode ? '' : 'light-mode'}>
-      <div className="min-h-screen bg-bg-primary">
+      <div className="min-h-screen bg-bg-primary ">
         <Navbar onAddTopic={() => setShowAddTopic(true)} />
 
         <header className="max-w-7xl mx-auto px-4 sm:px-6 my-8">
@@ -144,66 +145,17 @@ export default function Home() {
               )}
             </div>
 
-            {/* optional stats box */}
-            <div className="hidden md:flex items-center gap-4 px-4 py-3 rounded-xl bg-bg-secondary border border-white/10">
-              <div className="flex items-center gap-4">
-
-                {/* progress circle */}
-                <div
-                  className="relative h-20 w-20 shrink-0 rounded-full"
-                  style={{
-                    background: `conic-gradient(
-                      #34d399 35%,
-                      #fbbf24 0 75%,
-                      #ef4444 0
-                    )`,
-                  }}
-                >
-                  <div className="absolute inset-2 rounded-full bg-[#0a0a0a]" />
-                  <div className="absolute inset-0 grid place-items-center">
-                    <div className="text-lg font-bold">78</div>
-                  </div>
-                </div>
-
-                {/* stats */}
-                <div className="flex-1 space-y-2 w-40">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                      Easy
-                    </span>
-                    <span className="tabular-nums">32/80</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-amber-400" />
-                      Medium
-                    </span>
-                    <span className="tabular-nums">36/90</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full bg-red-400" />
-                      Hard
-                    </span>
-                    <span className="tabular-nums">10/40</span>
-                  </div>
-
-                  {/* overall line */}
-                  <div className="pt-2 border-t border-white/10 text-xs text-text-secondary">
-                    78/191 solved · 12 starred
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
+            {/* Stats section */}
+            <OverallProgressCard />
 
           </div>
 
         </header>
+
+        {/* Sheet progress section */}
+        {!loading && !error && topics.length > 0 && (
+          <SheetProgress />
+        )}
 
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

@@ -8,7 +8,6 @@ import {
   Sun,
   Tag,
   X,
-  Zap,
 } from 'lucide-react';
 import { useSheetStore } from '@/store/sheetStore';
 import { useState, useMemo }from 'react';
