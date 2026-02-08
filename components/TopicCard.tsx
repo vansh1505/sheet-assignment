@@ -1,0 +1,256 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  GripVertical,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Pencil,
+  Trash2,
+  Layers,
+} from 'lucide-react';
+import SubTopicSection from './SubTopicSection';
+import type { Topic } from '@/types/sheet';
+import { useSheetStore } from '@/store/sheetStore';
+
+interface TopicCardProps {
+  topic: Topic;
+  index: number;
+  onAddSubTopic: () => void;
+  onAddQuestion: (subTopicId: string) => void;
+}
+
+export default function TopicCard({
+  topic,
+  index,
+  onAddSubTopic,
+  onAddQuestion,
+}: TopicCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(topic.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { editTopic, deleteTopic, toggleCollapse, reorderSubTopics } =
+    useSheetStore();
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: topic.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) inputRef.current.focus();
+  }, [isEditing]);
+
+  const handleEditSubmit = () => {
+    if (editTitle.trim()) {
+      editTopic(topic.id, editTitle.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = topic.subTopics.findIndex((st) => st.id === active.id);
+    const newIndex = topic.subTopics.findIndex((st) => st.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      reorderSubTopics(topic.id, oldIndex, newIndex);
+    }
+  };
+
+  const totalQuestions = (topic.subTopics ?? []).reduce(
+    (acc, st) => acc + st.questions.length,
+    0
+  );
+  const completedQuestions = (topic.subTopics ?? []).reduce(
+    (acc, st) => acc + st.questions.filter((q) => q.timeSpent > 0).length,
+    0
+  );
+  const progress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0;
+
+  const staggerClass = `stagger-${Math.min(index + 1, 8)}`;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`animate-fade-in-up ${staggerClass} rounded-2xl border overflow-hidden transition-all duration-300
+        ${isDragging
+          ? 'opacity-60 scale-[1.01] border-accent/30 shadow-xl shadow-accent/5 z-50'
+          : 'border-border bg-bg-secondary/40 hover:bg-bg-secondary/60 shadow-sm'
+        }`}
+    >
+      {/* Topic Header */}
+      <div className="flex items-center gap-3 px-5 py-4 bg-surface-glow">
+        {/* Drag Handle */}
+        <button
+          className="drag-handle p-1 rounded-lg text-text-tertiary hover:text-text-secondary hover:bg-bg-tertiary transition-all shrink-0"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical size={16} />
+        </button>
+
+        {/* Collapse Toggle */}
+        <button
+          onClick={() => toggleCollapse(topic.id)}
+          className="text-text-tertiary hover:text-accent transition-colors shrink-0"
+        >
+          {topic.isCollapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronDown size={18} />
+          )}
+        </button>
+
+        {/* Icon */}
+        <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+          <Layers size={16} className="text-accent" />
+        </div>
+
+        {/* Title */}
+        <div className="flex-1 min-w-0">
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onBlur={handleEditSubmit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleEditSubmit();
+                if (e.key === 'Escape') setIsEditing(false);
+              }}
+              className="w-full bg-bg-tertiary border border-border rounded-lg px-3 py-1.5 text-base font-heading font-semibold text-text-primary focus:outline-none focus:border-accent"
+            />
+          ) : (
+            <h3 className="font-heading font-semibold text-base text-text-primary truncate">
+              {topic.title}
+            </h3>
+          )}
+        </div>
+
+        {/* Stats */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-text-tertiary font-mono tabular-nums">
+              {completedQuestions}/{totalQuestions}
+            </span>
+            <div className="w-20 h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${progress}%`,
+                  background: progress === 100
+                    ? 'var(--easy)'
+                    : progress > 50
+                      ? 'var(--accent)'
+                      : 'var(--accent)',
+                  opacity: progress === 0 ? 0 : 1,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={onAddSubTopic}
+              className="p-1.5 rounded-lg text-text-tertiary hover:text-accent hover:bg-accent/10 transition-colors"
+              title="Add subtopic"
+            >
+              <Plus size={14} />
+            </button>
+            <button
+              onClick={() => {
+                setEditTitle(topic.title);
+                setIsEditing(true);
+              }}
+              className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+              title="Edit topic"
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              onClick={() => deleteTopic(topic.id)}
+              className="p-1.5 rounded-lg text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Delete topic"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      {!topic.isCollapsed && (
+        <div className="px-5 pb-4 pt-2 space-y-3">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={(topic.subTopics ?? []).map((st) => st.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {(topic.subTopics ?? []).map((st, idx) => (
+                <SubTopicSection
+                  key={st.id}
+                  subTopic={st}
+                  topicId={topic.id}
+                  index={idx}
+                  onAddQuestion={() => onAddQuestion(st.id)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+
+          {(topic.subTopics ?? []).length === 0 && (
+            <div className="text-center py-6 text-text-tertiary text-sm">
+              <p>No subtopics yet.</p>
+              <button
+                onClick={onAddSubTopic}
+                className="mt-2 text-accent hover:text-accent-hover text-sm font-medium transition-colors"
+              >
+                + Add a subtopic
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
