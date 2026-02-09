@@ -20,9 +20,10 @@ import {
   ExternalLink,
   Youtube,
   MoreVertical,
+  FileText,
 } from 'lucide-react';
 import type { Question } from '@/types/sheet';
-import { ConfirmDeleteModal } from './Modals';
+import { ConfirmDeleteModal, NotesModal } from './Modals';
 
 interface QuestionCardProps {
   question: Question;
@@ -38,6 +39,7 @@ interface QuestionCardProps {
   onStartTimer: () => void;
   onStopTimer: () => void;
   onResetTimer: () => void;
+  onUpdateNotes: (notes: string) => void;
 }
 
 function formatTime(seconds: number): string {
@@ -55,8 +57,8 @@ const difficultyConfig: Record<string, { label: string; color: string }> = {
   Hard: { label: 'Hard', color: 'text-hard' },
 };
 
-/* Grid: Status | Difficulty | Title | Link | Sol | Solve/Time | Star | Menu */
-export const QUESTION_GRID = 'grid grid-cols-[26px_64px_1fr_30px_30px_120px_28px_28px] gap-x-1 items-center';
+/* Grid: Status | Difficulty | Title | Notes | Link | Sol | Solve/Time | Star | Menu */
+export const QUESTION_GRID = 'grid grid-cols-[26px_64px_1fr_32px_30px_30px_120px_28px_28px] gap-x-1 items-center';
 
 export default function QuestionCard({
   question,
@@ -69,6 +71,7 @@ export default function QuestionCard({
   onStartTimer,
   onStopTimer,
   onResetTimer,
+  onUpdateNotes,
 }: QuestionCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(question.title);
@@ -77,6 +80,7 @@ export default function QuestionCard({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
@@ -250,7 +254,18 @@ export default function QuestionCard({
             )}
           </div>
 
-          {/* 4 · Platform link */}
+          {/* 4 · Notes */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowNotes(true)}
+              className={`p-0.5 rounded transition-colors ${question.notes ? 'text-accent' : 'text-text-tertiary/40 hover:text-accent/70'}`}
+              title={question.notes ? 'View notes' : 'Add notes'}
+            >
+              <FileText size={13} fill={question.notes ? 'currentColor' : 'none'} fillOpacity={0.15} />
+            </button>
+          </div>
+
+          {/* 5 · Platform link */}
           <div className="flex justify-center">
             {question.platformUrl ? (
               <a href={question.platformUrl} target="_blank" rel="noopener noreferrer"
@@ -260,7 +275,7 @@ export default function QuestionCard({
             ) : <span />}
           </div>
 
-          {/* 5 · Solution */}
+          {/* 6 · Solution */}
           <div className="flex justify-center">
             {question.solutionUrl ? (
               <a href={question.solutionUrl} target="_blank" rel="noopener noreferrer"
@@ -270,7 +285,7 @@ export default function QuestionCard({
             ) : <span />}
           </div>
 
-          {/* 6 · Solve / Timer / Completed */}
+          {/* 7 · Solve / Timer / Completed */}
           <div className="flex items-center justify-center overflow-hidden">
             {question.isTimerRunning ? (
               <button onClick={onStopTimer}
@@ -298,7 +313,7 @@ export default function QuestionCard({
             )}
           </div>
 
-          {/* 7 · Favorite */}
+          {/* 8 · Favorite */}
           <div className="flex justify-center">
             <button onClick={onToggleFavorite}
               className={`transition-colors ${question.isFavorite ? 'text-favorite' : 'text-text-tertiary hover:text-favorite'}`}>
@@ -306,7 +321,7 @@ export default function QuestionCard({
             </button>
           </div>
 
-          {/* 8 · 3-dot menu */}
+          {/* 9 · 3-dot menu */}
           <div className="flex justify-center">
             <button
               ref={menuBtnRef}
@@ -413,6 +428,14 @@ export default function QuestionCard({
         onConfirm={onDelete}
         itemType="question"
         itemName={question.title}
+      />
+
+      <NotesModal
+        isOpen={showNotes}
+        onClose={() => setShowNotes(false)}
+        questionTitle={question.title}
+        notes={question.notes ?? ''}
+        onSave={onUpdateNotes}
       />
     </>
   );

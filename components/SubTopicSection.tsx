@@ -17,7 +17,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
+import { GripVertical, Plus, Pencil, Trash2, ChevronDown, Check } from 'lucide-react';
 import QuestionCard, { QUESTION_GRID } from './QuestionCard';
 import { ConfirmDeleteModal } from './Modals';
 import type { SubTopic } from '@/types/sheet';
@@ -54,6 +54,7 @@ function SubTopicInner({
     resetTimer,
     toggleComplete,
     toggleCollapseSubTopic,
+    updateNotes,
     searchQuery,
     showFavoritesOnly,
     tagFilter,
@@ -227,13 +228,14 @@ function SubTopicInner({
                   <>
                     {/* Table header */}
                     <div className={`${QUESTION_GRID} h-7 px-1.5 border-b border-border-subtle/30 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary/60 select-none`}>
-                      <span className="flex justify-center">✓</span>
-                      <span className="flex justify-center">Diff</span>
+                      <span className="flex justify-center"><Check height={18}/></span>
+                      <span className="flex justify-center">Difficulty</span>
                       <span className="pl-6">Problem</span>
+                      <span className="flex justify-center">Note</span>
                       <span className="flex justify-center">Link</span>
                       <span className="flex justify-center">Sol</span>
-                      <span className="flex justify-center">Practice</span>
-                      <span className="flex justify-center">★</span>
+                      <span className="flex justify-center">Solve</span>
+                      <span className="flex justify-center">Favourite</span>
                       <span />
                     </div>
                     <div className="space-y-px">
@@ -253,6 +255,7 @@ function SubTopicInner({
                           onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
                           onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
                           onResetTimer={() => resetTimer(topicId, subTopic.id, q.id)}
+                          onUpdateNotes={(notes) => updateNotes(topicId, subTopic.id, q.id, notes)}
                         />
                       ))}
                     </div>

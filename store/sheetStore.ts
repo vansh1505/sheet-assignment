@@ -43,6 +43,7 @@ interface SheetState {
   stopTimer: (topicId: string, subTopicId: string, questionId: string) => void;
   resetTimer: (topicId: string, subTopicId: string, questionId: string) => void;
   toggleComplete: (topicId: string, subTopicId: string, questionId: string) => void;
+  updateNotes: (topicId: string, subTopicId: string, questionId: string, notes: string) => void;
   resetAllData: () => void;
   setAllCollapsed: (collapsed: boolean) => void;
 }
@@ -345,6 +346,14 @@ export const useSheetStore = create<SheetState>()(
             isCompleted: !q.isCompleted,
             // Reset time when un-completing so Solve button returns
             ...(!q.isCompleted ? {} : { timeSpent: 0, isTimerRunning: false, timerStartedAt: null }),
+          })),
+        })),
+
+      updateNotes: (topicId, subTopicId, questionId, notes) =>
+        set((s) => ({
+          topics: updateQuestion(s.topics, topicId, subTopicId, questionId, (q) => ({
+            ...q,
+            notes,
           })),
         })),
 

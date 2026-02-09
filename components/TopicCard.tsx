@@ -184,7 +184,6 @@ export default function TopicCard({
               ref={inputRef}
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
               onBlur={handleEditSubmit}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleEditSubmit();

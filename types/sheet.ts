@@ -10,6 +10,7 @@ export interface Question {
   timerStartedAt: number | null;
   platformUrl?: string;
   solutionUrl?: string;
+  notes?: string;
 }
 
 export interface SubTopic {

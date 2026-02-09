@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, FileText } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -392,6 +392,92 @@ export function ConfirmDeleteModal({
           >
             Delete
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Notes Modal ─── */
+
+interface NotesModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  questionTitle: string;
+  notes: string;
+  onSave: (notes: string) => void;
+}
+
+export function NotesModal({ isOpen, onClose, questionTitle, notes, onSave }: NotesModalProps) {
+  const [value, setValue] = useState(notes);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setValue(notes);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    }
+  }, [isOpen, notes]);
+
+  if (!isOpen) return null;
+
+  const handleSave = () => {
+    onSave(value);
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) { handleSave(); } }}
+    >
+      <div className="bg-bg-secondary border border-border rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-fade-in-up">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded-lg bg-accent/10 shrink-0">
+              <FileText size={16} className="text-accent" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="font-heading font-semibold text-sm text-text-primary">Notes</h2>
+              <p className="text-[11px] text-text-tertiary truncate">{questionTitle}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleSave}
+            className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <div className="p-5">
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Write your notes here... approach, key insights, edge cases, complexity..."
+            className="w-full h-48 bg-bg-tertiary border border-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary/40 focus:outline-none focus:border-accent resize-none leading-relaxed"
+          />
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-[11px] text-text-tertiary">
+              {value.length > 0 ? `${value.length} characters` : 'No notes yet'}
+            </span>
+            <div className="flex items-center gap-2">
+              {value !== notes && (
+                <button
+                  onClick={() => setValue(notes)}
+                  className="px-3 py-1.5 rounded-lg text-xs text-text-tertiary hover:text-text-secondary hover:bg-bg-tertiary transition-colors"
+                >
+                  Discard
+                </button>
+              )}
+              <button
+                onClick={handleSave}
+                className="px-4 py-1.5 rounded-lg bg-accent text-bg-primary text-xs font-medium hover:bg-accent-hover transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
