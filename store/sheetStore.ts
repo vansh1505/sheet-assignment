@@ -27,7 +27,7 @@ interface SheetState {
   editSubTopic: (topicId: string, subTopicId: string, title: string) => void;
   deleteSubTopic: (topicId: string, subTopicId: string) => void;
 
-  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id' | 'isFavorite' | 'isCompleted' | 'tags' | 'timeSpent' | 'isTimerRunning' | 'timerStartedAt'>) => void;
+  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id' | 'isFavorite' | 'isCompleted' | 'timeSpent' | 'isTimerRunning' | 'timerStartedAt'> & { tags?: string[] }) => void;
   editQuestion: (topicId: string, subTopicId: string, questionId: string, title: string) => void;
   deleteQuestion: (topicId: string, subTopicId: string, questionId: string) => void;
 
@@ -44,6 +44,7 @@ interface SheetState {
   resetTimer: (topicId: string, subTopicId: string, questionId: string) => void;
   toggleComplete: (topicId: string, subTopicId: string, questionId: string) => void;
   resetAllData: () => void;
+  setAllCollapsed: (collapsed: boolean) => void;
 }
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
@@ -209,7 +210,7 @@ export const useSheetStore = create<SheetState>()(
                               id: uuidv4(),
                               isFavorite: false,
                               isCompleted: false,
-                              tags: [],
+                              tags: question.tags ?? [],
                               timeSpent: 0,
                               isTimerRunning: false,
                               timerStartedAt: null,
@@ -357,6 +358,18 @@ export const useSheetStore = create<SheetState>()(
         });
         window.location.reload();
       },
+
+      setAllCollapsed: (collapsed) =>
+        set((s) => ({
+          topics: s.topics.map((t) => ({
+            ...t,
+            isCollapsed: collapsed,
+            subTopics: t.subTopics.map((st) => ({
+              ...st,
+              isCollapsed: collapsed,
+            })),
+          })),
+        })),
     }),
     {
       name: 'sheet-store',

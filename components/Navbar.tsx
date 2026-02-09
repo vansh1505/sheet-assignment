@@ -10,6 +10,8 @@ import {
   X,
   RotateCcw,
   AlertTriangle,
+  ChevronsDownUp,
+  ChevronsUpDown,
 } from 'lucide-react';
 import { useSheetStore } from '@/store/sheetStore';
 import { useState, useMemo }from 'react';
@@ -32,7 +34,13 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
     toggleDarkMode,
     topics,
     resetAllData,
+    setAllCollapsed,
   } = useSheetStore();
+
+  const allCollapsed = useMemo(
+    () => topics.length > 0 && topics.every((t) => t.isCollapsed),
+    [topics]
+  );
 
   const [showResetModal, setShowResetModal] = useState(false);
 
@@ -190,6 +198,15 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
                 </div>
               )}
             </div>
+
+            {/* Collapse / Expand All */}
+            <button
+              onClick={() => setAllCollapsed(!allCollapsed)}
+              className="p-2 rounded-xl border border-border-subtle text-text-tertiary hover:text-text-secondary hover:border-border transition-all"
+              title={allCollapsed ? 'Expand all' : 'Collapse all'}
+            >
+              {allCollapsed ? <ChevronsUpDown size={16} /> : <ChevronsDownUp size={16} />}
+            </button>
 
             {/* Reset All */}
             <button

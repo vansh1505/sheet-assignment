@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   SortableContext,
@@ -26,6 +26,7 @@ import {
   Layers,
 } from 'lucide-react';
 import SubTopicSection from './SubTopicSection';
+import { ConfirmDeleteModal } from './Modals';
 import type { Topic } from '@/types/sheet';
 import { useSheetStore } from '@/store/sheetStore';
 
@@ -44,10 +45,36 @@ export default function TopicCard({
 }: TopicCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(topic.title);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { editTopic, deleteTopic, toggleCollapse, reorderSubTopics } =
+  const { editTopic, deleteTopic, toggleCollapse, reorderSubTopics, searchQuery, showFavoritesOnly, tagFilter } =
     useSheetStore();
+
+  const isFilterActive = !!(searchQuery || showFavoritesOnly || tagFilter);
+
+  const filterQuestion = useMemo(() => {
+    return (q: { isFavorite: boolean; tags: string[]; title: string }) => {
+      if (showFavoritesOnly && !q.isFavorite) return false;
+      if (tagFilter && !q.tags.includes(tagFilter)) return false;
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        // Match against question title, tags, topic title, or subtopic titles
+        return (
+          q.title.toLowerCase().includes(query) ||
+          q.tags.some((t) => t.toLowerCase().includes(query)) ||
+          topic.title.toLowerCase().includes(query) ||
+          (topic.subTopics ?? []).some((st) => st.title.toLowerCase().includes(query))
+        );
+      }
+      return true;
+    };
+  }, [searchQuery, showFavoritesOnly, tagFilter, topic.title, topic.subTopics]);
+
+  const hasMatchingQuestions = useMemo(() => {
+    if (!isFilterActive) return true;
+    return (topic.subTopics ?? []).some((st) => st.questions.some(filterQuestion));
+  }, [topic.subTopics, isFilterActive, filterQuestion]);
 
   const {
     attributes,
@@ -105,17 +132,21 @@ export default function TopicCard({
     toggleCollapse(topic.id);
   };
 
-  const totalQuestions = (topic.subTopics ?? []).reduce(
-    (acc, st) => acc + st.questions.length,
-    0
-  );
-  const completedQuestions = (topic.subTopics ?? []).reduce(
-    (acc, st) => acc + st.questions.filter((q) => q.isCompleted).length,
-    0
-  );
+  const totalQuestions = useMemo(() =>
+    (topic.subTopics ?? []).reduce(
+      (acc, st) => acc + (isFilterActive ? st.questions.filter(filterQuestion).length : st.questions.length),
+      0
+    ), [topic.subTopics, isFilterActive, filterQuestion]);
+  const completedQuestions = useMemo(() =>
+    (topic.subTopics ?? []).reduce(
+      (acc, st) => acc + (isFilterActive ? st.questions.filter(filterQuestion).filter((q) => q.isCompleted).length : st.questions.filter((q) => q.isCompleted).length),
+      0
+    ), [topic.subTopics, isFilterActive, filterQuestion]);
   const progress = totalQuestions > 0 ? (completedQuestions / totalQuestions) * 100 : 0;
 
   const staggerClass = `stagger-${Math.min(index + 1, 8)}`;
+
+  if (!hasMatchingQuestions) return null;
 
   return (
     <div
@@ -216,7 +247,7 @@ export default function TopicCard({
               <Pencil size={16} />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); deleteTopic(topic.id); }}
+              onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
               className="p-2 rounded-lg text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
               title="Delete topic"
             >
@@ -226,9 +257,17 @@ export default function TopicCard({
         </div>
       </div>
 
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => deleteTopic(topic.id)}
+        itemType="topic"
+        itemName={topic.title}
+      />
+
       {/* Content */}
       <AnimatePresence initial={false}>
-        {!topic.isCollapsed && (
+        {(!topic.isCollapsed || isFilterActive) && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}

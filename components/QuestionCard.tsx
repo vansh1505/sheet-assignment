@@ -20,6 +20,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import type { Question } from '@/types/sheet';
+import { ConfirmDeleteModal } from './Modals';
 
 interface QuestionCardProps {
   question: Question;
@@ -87,6 +88,7 @@ export default function QuestionCard({
   const [editTitle, setEditTitle] = useState(question.title);
   const [showTagEditor, setShowTagEditor] = useState(false);
   const [newTag, setNewTag] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const tagInputRef = useRef<HTMLInputElement>(null);
@@ -341,7 +343,7 @@ export default function QuestionCard({
             <Pencil size={12} />
           </button>
           <button
-            onClick={onDelete}
+            onClick={() => setShowDeleteConfirm(true)}
             className="p-1 rounded-md text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
             title="Delete"
           >
@@ -349,6 +351,14 @@ export default function QuestionCard({
           </button>
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={onDelete}
+        itemType="question"
+        itemName={question.title}
+      />
 
       {/* Tags & tag editor — second row, only if tags exist or editor is open */}
       {(question.tags.length > 0 || showTagEditor) && (

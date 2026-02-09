@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import QuestionCard from './QuestionCard';
+import { ConfirmDeleteModal } from './Modals';
 import type { SubTopic } from '@/types/sheet';
 import { useSheetStore } from '@/store/sheetStore';
 
@@ -36,6 +37,7 @@ function SubTopicInner({
 }: Omit<SubTopicSectionProps, 'index'>) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(subTopic.title);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -92,7 +94,8 @@ function SubTopicInner({
       const query = searchQuery.toLowerCase();
       return (
         q.title.toLowerCase().includes(query) ||
-        q.tags.some((t) => t.toLowerCase().includes(query))
+        q.tags.some((t) => t.toLowerCase().includes(query)) ||
+        subTopic.title.toLowerCase().includes(query)
       );
     }
     return true;
@@ -103,7 +106,11 @@ function SubTopicInner({
   }
 
   const questionIds = filteredQuestions.map((q) => q.id);
-  const completedCount = subTopic.questions.filter((q) => q.isCompleted).length;
+  const isFilterActive = !!(searchQuery || showFavoritesOnly || tagFilter);
+  const completedCount = isFilterActive
+    ? filteredQuestions.filter((q) => q.isCompleted).length
+    : subTopic.questions.filter((q) => q.isCompleted).length;
+  const displayTotal = isFilterActive ? filteredQuestions.length : subTopic.questions.length;
 
   return (
     <div className="ml-4 border-l-2 border-border-subtle pl-4">
@@ -144,7 +151,7 @@ function SubTopicInner({
         </motion.span>
 
         <span className="text-[11px] text-text-tertiary font-mono tabular-nums">
-          {completedCount}/{subTopic.questions.length}
+          {completedCount}/{displayTotal}
         </span>
 
         {/* Progress bar */}
@@ -152,10 +159,10 @@ function SubTopicInner({
           <div
             className="h-full rounded-full transition-all duration-300"
             style={{
-              width: subTopic.questions.length > 0
-                ? `${(completedCount / subTopic.questions.length) * 100}%`
+              width: displayTotal > 0
+                ? `${(completedCount / displayTotal) * 100}%`
                 : '0%',
-              background: completedCount === subTopic.questions.length && subTopic.questions.length > 0 ? 'var(--easy)' : 'var(--accent)',
+              background: completedCount === displayTotal && displayTotal > 0 ? 'var(--easy)' : 'var(--accent)',
               opacity: completedCount === 0 ? 0.6 : 1,
             }}
           />
@@ -180,7 +187,7 @@ function SubTopicInner({
             <Pencil size={14} />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); deleteSubTopic(topicId, subTopic.id); }}
+            onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
             className="p-1.5 rounded-lg text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <Trash2 size={14} />
@@ -188,9 +195,17 @@ function SubTopicInner({
         </div>
       </div>
 
+      <ConfirmDeleteModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => deleteSubTopic(topicId, subTopic.id)}
+        itemType="subtopic"
+        itemName={subTopic.title}
+      />
+
       {/* Questions */}
       <AnimatePresence initial={false}>
-        {!subTopic.isCollapsed && (
+        {(!subTopic.isCollapsed || isFilterActive) && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -234,6 +249,20 @@ function SubTopicInner({
 }
 
 export default function SubTopicSection(props: SubTopicSectionProps) {
+  const { searchQuery, showFavoritesOnly, tagFilter } = useSheetStore();
+
+  const isFilterActive = !!(searchQuery || showFavoritesOnly || tagFilter);
+
+  const hasMatchingQuestions = !isFilterActive || props.subTopic.questions.some((q) => {
+    if (showFavoritesOnly && !q.isFavorite) return false;
+    if (tagFilter && !q.tags.includes(tagFilter)) return false;
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return q.title.toLowerCase().includes(query) || q.tags.some((t) => t.toLowerCase().includes(query));
+    }
+    return true;
+  });
+
   const {
     attributes,
     listeners,
@@ -254,6 +283,8 @@ export default function SubTopicSection(props: SubTopicSectionProps) {
     transition,
     zIndex: isDragging ? 50 : undefined,
   };
+
+  if (!hasMatchingQuestions) return null;
 
   return (
     <div

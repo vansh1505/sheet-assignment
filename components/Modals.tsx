@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -186,7 +186,13 @@ export function AddSubTopicModal({
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (title: string, difficulty: 'Easy' | 'Medium' | 'Hard') => void;
+  onAdd: (data: {
+    title: string;
+    difficulty: 'Easy' | 'Medium' | 'Hard';
+    platformUrl?: string;
+    solutionUrl?: string;
+    tags?: string[];
+  }) => void;
   subTopicTitle: string;
 }
 
@@ -198,12 +204,18 @@ export function AddQuestionModal({
 }: AddQuestionModalProps) {
   const [title, setTitle] = useState('');
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard'>('Medium');
+  const [platformUrl, setPlatformUrl] = useState('');
+  const [solutionUrl, setSolutionUrl] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setTitle('');
       setDifficulty('Medium');
+      setPlatformUrl('');
+      setSolutionUrl('');
+      setTagsInput('');
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
@@ -211,7 +223,17 @@ export function AddQuestionModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAdd(title.trim(), difficulty);
+      const tags = tagsInput
+        .split(',')
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean);
+      onAdd({
+        title: title.trim(),
+        difficulty,
+        platformUrl: platformUrl.trim() || undefined,
+        solutionUrl: solutionUrl.trim() || undefined,
+        tags: tags.length > 0 ? tags : undefined,
+      });
       onClose();
     }
   };
@@ -259,6 +281,39 @@ export function AddQuestionModal({
             ))}
           </div>
         </div>
+        <div>
+          <label className="block text-sm text-text-secondary mb-1.5">
+            Problem Link <span className="text-text-tertiary text-xs">(optional)</span>
+          </label>
+          <input
+            value={platformUrl}
+            onChange={(e) => setPlatformUrl(e.target.value)}
+            placeholder="https://leetcode.com/problems/two-sum"
+            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-text-secondary mb-1.5">
+            Solution Link <span className="text-text-tertiary text-xs">(optional)</span>
+          </label>
+          <input
+            value={solutionUrl}
+            onChange={(e) => setSolutionUrl(e.target.value)}
+            placeholder="https://youtu.be/... or article link"
+            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-text-secondary mb-1.5">
+            Tags <span className="text-text-tertiary text-xs">(optional, comma-separated)</span>
+          </label>
+          <input
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="e.g. arrays, binary search, revision"
+            className="w-full bg-bg-tertiary border border-border rounded-xl px-4 py-2.5 text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-all text-sm"
+          />
+        </div>
         <div className="flex justify-end gap-2">
           <button
             type="button"
@@ -277,5 +332,68 @@ export function AddQuestionModal({
         </div>
       </form>
     </Modal>
+  );
+}
+
+/* ─── Confirm Delete Modal ─── */
+interface ConfirmDeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  itemType: 'topic' | 'subtopic' | 'question';
+  itemName: string;
+}
+
+export function ConfirmDeleteModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  itemType,
+  itemName,
+}: ConfirmDeleteModalProps) {
+  if (!isOpen) return null;
+
+  const descriptions: Record<string, string> = {
+    topic: 'This will delete the topic and all its subtopics and questions.',
+    subtopic: 'This will delete the subtopic and all its questions.',
+    question: 'This will permanently remove this question.',
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-bg-secondary border border-border rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in-up">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-xl bg-red-500/10">
+            <AlertTriangle size={22} className="text-red-400" />
+          </div>
+          <h3 className="font-heading font-bold text-lg text-text-primary">
+            Delete {itemType}?
+          </h3>
+        </div>
+        <p className="text-sm text-text-secondary mb-2 leading-relaxed">
+          <span className="text-text-primary font-medium">&quot;{itemName}&quot;</span>
+        </p>
+        <p className="text-sm text-text-tertiary mb-6">
+          {descriptions[itemType]} This action <span className="text-red-400 font-semibold">cannot be undone</span>.
+        </p>
+        <div className="flex items-center gap-3 justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm font-medium hover:bg-bg-tertiary transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => { onConfirm(); onClose(); }}
+            className="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors shadow-md shadow-red-500/20"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -128,15 +128,20 @@ export function SheetProgress() {
             {stats.topicBreakdown.map((t, i) => {
               const isComplete = t.total > 0 && t.solved === t.total;
               return (
-                <span
-                  key={t.title}
-                  title={`${t.title} — ${t.solved}/${t.total}`}
-                  className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
-                    isComplete
-                      ? 'bg-easy shadow-[0_0_6px_rgba(34,197,94,0.4)]'
-                      : 'bg-bg-tertiary border border-white/10'
-                  }`}
-                />
+                <div key={t.title} className="relative group/dot">
+                  <span
+                    className={`block h-2.5 w-2.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-150 ${
+                      isComplete
+                        ? 'bg-easy shadow-[0_0_6px_rgba(34,197,94,0.4)]'
+                        : 'bg-bg-tertiary border border-white/10'
+                    }`}
+                  />
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-bg-primary border border-border text-xs text-text-primary whitespace-nowrap opacity-0 pointer-events-none group-hover/dot:opacity-100 transition-opacity duration-150 shadow-lg z-50">
+                    <span className="font-medium">{t.title}</span>
+                    <span className="text-text-tertiary ml-1.5">{t.solved}/{t.total}</span>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-border" />
+                  </div>
+                </div>
               );
             })}
           </div>

@@ -125,7 +125,7 @@ export default function Home() {
         <header className="max-w-7xl mx-auto px-4 sm:px-6 my-8">
           <div className="flex items-start justify-between gap-6">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+              <h1 className="text-2xl md:text-3xl font-bold text-text-primary font-mono">
                 {sheetName}
               </h1>
               {description && (
@@ -171,7 +171,7 @@ export default function Home() {
               <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
                 <span className="text-2xl">⚠</span>
               </div>
-              <p className="text-red-400 text-sm">{error}</p>
+              <p className="text-red-400 text-sm font-mono">{error}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 rounded-xl bg-accent text-bg-primary text-sm font-medium hover:bg-accent-hover transition-colors"
@@ -250,9 +250,15 @@ export default function Home() {
             setActiveTopicId(null);
             setActiveSubTopicId(null);
           }}
-          onAdd={(title, difficulty) => {
+          onAdd={(data) => {
             if (activeTopicId && activeSubTopicId) {
-              addQuestion(activeTopicId, activeSubTopicId, { title, difficulty });
+              addQuestion(activeTopicId, activeSubTopicId, {
+                title: data.title,
+                difficulty: data.difficulty,
+                platformUrl: data.platformUrl,
+                solutionUrl: data.solutionUrl,
+                tags: data.tags ?? [],
+              });
             }
           }}
           subTopicTitle={activeSubTopic?.title || ''}
