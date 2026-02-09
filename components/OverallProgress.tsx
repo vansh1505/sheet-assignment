@@ -9,7 +9,7 @@ export default function OverallProgress({ progress = 76 }: Props) {
   const filledDots = Math.round((progress / 100) * totalDots);
 
   return (
-    <div className="w-full max-w-md mx-auto rounded-2xl p-8 shadow-sm">
+    <div className="w-full max-w-md mx-auto rounded-2xl p-8">
       
       {/* semicircle */}
       <div className="relative h-40 flex items-end justify-center mb-6">

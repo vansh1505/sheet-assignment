@@ -100,9 +100,7 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-accent/20">
               <Image src="/logo.png" alt="Logo" width={42} height={42} />
-            </div>
               <h1 className="font-heading font-bold text-lg text-text-primary leading-tight">
                 {sheetName} - Codolio
               </h1>

@@ -160,7 +160,7 @@ export default function TopicCard({
     >
       {/* Topic Header — clickable to toggle collapse */}
       <div
-        className="flex items-center gap-4 px-5 py-5 bg-surface-glow cursor-pointer select-none"
+        className="flex items-center gap-4 px-5 py-5 bg-surface-glow cursor-pointer select-none rounded-2xl"
         onClick={handleHeaderClick}
       >
         {/* Drag Handle */}

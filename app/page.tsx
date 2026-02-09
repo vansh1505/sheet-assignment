@@ -26,7 +26,7 @@ import {
 import { useSheetStore } from '@/store/sheetStore';
 import { transformAPIData } from '@/lib/transform';
 import type { APIResponse } from '@/types/sheet';
-import { Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 
 const API_URL =
   'https://node.codolio.com/api/question-tracker/v1/sheet/public/get-sheet-by-slug/striver-sde-sheet';
@@ -169,7 +169,9 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="inline-block mt-3 text-sm text-accent hover:underline"
                     >
-                      View original sheet →
+                      <p className='flex items-center'>
+                        View original sheet <ChevronRight height={16} width={16}/>
+                      </p>
                     </a>
                   )}
                 </div>

@@ -37,7 +37,7 @@ export default function DifficultyBreakdown({
   }, [solvedEasy, solvedMedium, solvedHard, totalQuestions]);
 
   return (
-    <div className="flex items-center justify-center gap-5 px-4 py-4 rounded-xl bg-bg-secondary border border-white/10">
+    <div className="flex items-center justify-center gap-5 px-4 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
       {/* Donut chart */}
       <div
         className="relative h-28 w-28 shrink-0 rounded-full"
