@@ -174,7 +174,7 @@ export default function QuestionCard({
         ${isDragging
           ? 'opacity-60 scale-[1.01] border-accent/30 bg-bg-tertiary shadow-lg'
           : question.isCompleted
-            ? 'border-easy/15 bg-easy/[0.03] hover:bg-easy/[0.06]'
+            ? 'border-easy/15 bg-easy/3 hover:bg-easy/6'
             : 'border-border-subtle/50 bg-bg-secondary/30 hover:bg-bg-secondary/60'
         }`}
     >
@@ -192,7 +192,7 @@ export default function QuestionCard({
         {/* Completion checkbox */}
         <button
           onClick={onToggleComplete}
-          className={`shrink-0 h-[18px] w-[18px] rounded-[5px] border-[1.5px] flex items-center justify-center transition-all duration-200
+          className={`shrink-0 h-4.5 w-4.5 rounded-[5px] border-[1.5px] flex items-center justify-center transition-all duration-200
             ${question.isCompleted
               ? 'bg-easy border-easy text-white'
               : 'border-text-tertiary/40 hover:border-accent/60 bg-transparent'

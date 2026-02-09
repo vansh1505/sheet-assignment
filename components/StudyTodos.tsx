@@ -85,7 +85,7 @@ export default function StudyTodos() {
   // Avoid hydration mismatch
   if (!mounted) {
     return (
-      <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle min-h-[180px]">
+      <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle min-h-45">
         <div className="flex items-center gap-2 mb-3">
           <ListTodo size={14} className="text-accent" />
           <span className="text-xs font-semibold text-text-primary uppercase tracking-wider">
@@ -156,7 +156,7 @@ export default function StudyTodos() {
       )}
 
       {/* Todos list */}
-      <div className="flex-1 space-y-1 max-h-[200px] overflow-y-auto pr-1">
+      <div className="flex-1 space-y-1 max-h-50 overflow-y-auto pr-1">
         {todos.length === 0 && (
           <p className="text-xs text-text-tertiary text-center py-4">
             No study goals yet — add one above!
