@@ -46,6 +46,7 @@ interface SheetState {
   updateNotes: (topicId: string, subTopicId: string, questionId: string, notes: string) => void;
   resetAllData: () => void;
   setAllCollapsed: (collapsed: boolean) => void;
+  importProgress: (data: { sheetName: string; topics: Topic[] }) => void;
 }
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
@@ -83,7 +84,7 @@ function updateQuestion(
 
 export const useSheetStore = create<SheetState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       topics: [],
       sheetName: 'Question Sheet',
       searchQuery: '',
@@ -380,6 +381,12 @@ export const useSheetStore = create<SheetState>()(
               isCollapsed: collapsed,
             })),
           })),
+        })),
+
+      importProgress: (data) =>
+        set(() => ({
+          sheetName: data.sheetName,
+          topics: data.topics,
         })),
     }),
     {
