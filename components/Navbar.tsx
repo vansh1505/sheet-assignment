@@ -8,6 +8,8 @@ import {
   Sun,
   Tag,
   X,
+  RotateCcw,
+  AlertTriangle,
 } from 'lucide-react';
 import { useSheetStore } from '@/store/sheetStore';
 import { useState, useMemo }from 'react';
@@ -29,7 +31,10 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
     darkMode,
     toggleDarkMode,
     topics,
+    resetAllData,
   } = useSheetStore();
+
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const [showTagDropdown, setShowTagDropdown] = useState(false);
 
@@ -59,7 +64,7 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
         (acc, t) =>
           acc +
           (t.subTopics ?? []).reduce(
-            (a, st) => a + st.questions.filter((q) => q.timeSpent > 0).length,
+            (a, st) => a + st.questions.filter((q) => q.isCompleted).length,
             0
           ),
         0
@@ -82,6 +87,7 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
   );
 
   return (
+    <>
     <nav className="sticky top-0 z-50 border-b border-border bg-bg-primary/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
@@ -185,6 +191,15 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
               )}
             </div>
 
+            {/* Reset All */}
+            <button
+              onClick={() => setShowResetModal(true)}
+              className="p-2 rounded-xl border border-border-subtle text-text-tertiary hover:text-red-400 hover:border-red-400/30 transition-all"
+              title="Reset all data"
+            >
+              <RotateCcw size={16} />
+            </button>
+
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
@@ -206,5 +221,40 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
         </div>
       </div>
     </nav>
+
+    {/* Reset Confirmation Modal */}
+    {showResetModal && (
+      <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="bg-bg-secondary border border-border rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-xl bg-red-500/10">
+              <AlertTriangle size={22} className="text-red-400" />
+            </div>
+            <h3 className="font-heading font-bold text-lg text-text-primary">Reset All Data?</h3>
+          </div>
+          <p className="text-sm text-text-secondary mb-6 leading-relaxed">
+            This will permanently erase all your progress, completions, timers, tags, and study todos. This action <span className="text-red-400 font-semibold">cannot be undone</span>.
+          </p>
+          <div className="flex items-center gap-3 justify-end">
+            <button
+              onClick={() => setShowResetModal(false)}
+              className="px-4 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm font-medium hover:bg-bg-tertiary transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                resetAllData();
+                setShowResetModal(false);
+              }}
+              className="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors shadow-md shadow-red-500/20"
+            >
+              Reset Everything
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

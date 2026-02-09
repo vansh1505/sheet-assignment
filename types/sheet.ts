@@ -3,11 +3,13 @@ export interface Question {
   title: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Basic';
   isFavorite: boolean;
+  isCompleted: boolean;
   tags: string[];
   timeSpent: number;
   isTimerRunning: boolean;
   timerStartedAt: number | null;
   platformUrl?: string;
+  solutionUrl?: string;
 }
 
 export interface SubTopic {
@@ -29,6 +31,7 @@ export interface APIQuestion {
   topic: string;
   title: string;
   subTopic: string | null;
+  resource?: string;
   questionId: {
     _id: string;
     name: string;

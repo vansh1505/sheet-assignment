@@ -2,8 +2,10 @@
 
 import { useMemo } from 'react';
 import { useSheetStore } from '@/store/sheetStore';
-import { CheckCircle2, Layers, BookOpen } from 'lucide-react';
+import { Layers, BookOpen } from 'lucide-react';
 import OverallProgress from './OverallProgress';
+import StudyTodos from './StudyTodos';
+import DifficultyBreakdown from './DifficultyBreakdown';
 
 function useSheetStats() {
   const { topics } = useSheetStore();
@@ -36,7 +38,7 @@ function useSheetStats() {
           totalQuestions++;
           topicTotal++;
 
-          const isSolved = q.timeSpent > 0;
+          const isSolved = q.isCompleted;
           if (q.isFavorite) favoriteCount++;
 
           if (q.difficulty === 'Easy' || q.difficulty === 'Basic') {
@@ -94,61 +96,17 @@ export function SheetProgress() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Difficulty Breakdown */}
-        <div className="flex items-center gap-4 px-4 py-3 rounded-xl bg-bg-secondary border border-white/10">
-          <div className="flex items-center gap-4">
-            {/* progress circle */}
-            <div
-              className="relative h-20 w-20 shrink-0 rounded-full"
-              style={{
-                background: stats.solvedQuestions > 0
-                  ? `conic-gradient(
-                      #34d399 ${stats.totalQuestions > 0 ? (stats.solvedEasy / stats.totalQuestions) * 100 : 0}%,
-                      #fbbf24 ${stats.totalQuestions > 0 ? (stats.solvedEasy / stats.totalQuestions) * 100 : 0}% ${stats.totalQuestions > 0 ? ((stats.solvedEasy + stats.solvedMedium) / stats.totalQuestions) * 100 : 0}%,
-                      #ef4444 ${stats.totalQuestions > 0 ? ((stats.solvedEasy + stats.solvedMedium) / stats.totalQuestions) * 100 : 0}% ${stats.totalQuestions > 0 ? ((stats.solvedEasy + stats.solvedMedium + stats.solvedHard) / stats.totalQuestions) * 100 : 0}%,
-                      #292524 ${stats.totalQuestions > 0 ? ((stats.solvedEasy + stats.solvedMedium + stats.solvedHard) / stats.totalQuestions) * 100 : 0}% 100%
-                    )`
-                  : `conic-gradient(#292524 0% 100%)`
-              }}
-            >
-              <div className="absolute inset-2 rounded-full bg-[#0a0a0a]" />
-              <div className="absolute inset-0 grid place-items-center">
-                <div className="text-lg font-bold">{stats.solvedQuestions}</div>
-              </div>
-            </div>
-
-            {/* stats */}
-            <div className="flex-1 space-y-2 w-40">
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  Easy
-                </span>
-                <span className="tabular-nums">{stats.solvedEasy}/{stats.totalEasy}</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-amber-400" />
-                  Medium
-                </span>
-                <span className="tabular-nums">{stats.solvedMedium}/{stats.totalMedium}</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-red-400" />
-                  Hard
-                </span>
-                <span className="tabular-nums">{stats.solvedHard}/{stats.totalHard}</span>
-              </div>
-
-              <div className="pt-2 border-t border-white/10 text-xs text-text-secondary">
-                {stats.solvedQuestions}/{stats.totalQuestions} solved
-                {stats.favoriteCount > 0 && ` · ${stats.favoriteCount} starred`}
-              </div>
-            </div>
-          </div>
-        </div>
+        <DifficultyBreakdown
+          solvedEasy={stats.solvedEasy}
+          totalEasy={stats.totalEasy}
+          solvedMedium={stats.solvedMedium}
+          totalMedium={stats.totalMedium}
+          solvedHard={stats.solvedHard}
+          totalHard={stats.totalHard}
+          solvedQuestions={stats.solvedQuestions}
+          totalQuestions={stats.totalQuestions}
+          favoriteCount={stats.favoriteCount}
+        />
 
         {/* Topics Completed */}
         <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
@@ -166,62 +124,30 @@ export function SheetProgress() {
               / {stats.totalTopics} completed
             </span>
           </div>
-          <div className="w-full h-2 bg-bg-tertiary rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500 ease-out"
-              style={{
-                width: stats.totalTopics > 0 ? `${(stats.completedTopics / stats.totalTopics) * 100}%` : '0%',
-                background: stats.completedTopics === stats.totalTopics && stats.totalTopics > 0 ? 'var(--easy)' : 'var(--accent)',
-              }}
-            />
+          <div className="flex flex-wrap gap-1.5">
+            {stats.topicBreakdown.map((t, i) => {
+              const isComplete = t.total > 0 && t.solved === t.total;
+              return (
+                <span
+                  key={t.title}
+                  title={`${t.title} — ${t.solved}/${t.total}`}
+                  className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+                    isComplete
+                      ? 'bg-easy shadow-[0_0_6px_rgba(34,197,94,0.4)]'
+                      : 'bg-bg-tertiary border border-white/10'
+                  }`}
+                />
+              );
+            })}
           </div>
         </div>
 
-        {/* Difficulty Split */}
-        <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
-          <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 size={14} className="text-emerald-400" />
-            <span className="text-xs font-semibold text-text-primary uppercase tracking-wider">
-              By Difficulty
-            </span>
-          </div>
-          <div className="space-y-2.5">
-            {/* Easy */}
-            <div>
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-text-secondary">Easy</span>
-                <span className="tabular-nums text-text-primary">{stats.solvedEasy}/{stats.totalEasy}</span>
-              </div>
-              <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-emerald-400 transition-all duration-300" style={{ width: stats.totalEasy > 0 ? `${(stats.solvedEasy / stats.totalEasy) * 100}%` : '0%' }} />
-              </div>
-            </div>
-            {/* Medium */}
-            <div>
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-text-secondary">Medium</span>
-                <span className="tabular-nums text-text-primary">{stats.solvedMedium}/{stats.totalMedium}</span>
-              </div>
-              <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-amber-400 transition-all duration-300" style={{ width: stats.totalMedium > 0 ? `${(stats.solvedMedium / stats.totalMedium) * 100}%` : '0%' }} />
-              </div>
-            </div>
-            {/* Hard */}
-            <div>
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-text-secondary">Hard</span>
-                <span className="tabular-nums text-text-primary">{stats.solvedHard}/{stats.totalHard}</span>
-              </div>
-              <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-red-400 transition-all duration-300" style={{ width: stats.totalHard > 0 ? `${(stats.solvedHard / stats.totalHard) * 100}%` : '0%' }} />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Study Goals (Todo) */}
+        <StudyTodos />
       </div>
 
       {/* Per-topic progress */}
-      {stats.topicBreakdown.length > 0 && (
+      {/* {stats.topicBreakdown.length > 0 && (
         <div className="mt-4 px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
           <div className="flex items-center gap-2 mb-3">
             <BookOpen size={14} className="text-accent" />
@@ -253,7 +179,7 @@ export function SheetProgress() {
             })}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

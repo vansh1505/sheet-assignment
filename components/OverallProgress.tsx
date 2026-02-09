@@ -1,7 +1,7 @@
 "use client";
 
 type Props = {
-  progress?: number; // 0–100
+  progress?: number;
 };
 
 export default function OverallProgress({ progress = 76 }: Props) {
@@ -28,8 +28,8 @@ export default function OverallProgress({ progress = 76 }: Props) {
                 key={i}
                 className={`absolute h-3 w-3 rounded-full transition ${
                   filled
-                    ? "bg-orange-400"
-                    : "bg-orange-200/60 dark:bg-white/10"
+                    ? "bg-orange-400 shadow-[0_0_6px_rgba(251,146,60,0.4)]"
+                    : "bg-bg-tertiary"
                 }`}
                 style={{
                   transform: `translate(${x}px, ${-y}px)`,
@@ -41,7 +41,7 @@ export default function OverallProgress({ progress = 76 }: Props) {
 
         {/* center text */}
         <div className="text-center">
-          <div className="text-4xl font-bold">{progress}%</div>
+          <div className="text-4xl font-bold text-text-primary">{progress}%</div>
           <div className="text-sm dark:text-gray-400">
             Total progress
           </div>

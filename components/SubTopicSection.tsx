@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -16,7 +17,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Plus, Pencil, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import { GripVertical, Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import QuestionCard from './QuestionCard';
 import type { SubTopic } from '@/types/sheet';
 import { useSheetStore } from '@/store/sheetStore';
@@ -48,6 +49,8 @@ function SubTopicInner({
     removeTag,
     startTimer,
     stopTimer,
+    resetTimer,
+    toggleComplete,
     toggleCollapseSubTopic,
     searchQuery,
     showFavoritesOnly,
@@ -100,30 +103,31 @@ function SubTopicInner({
   }
 
   const questionIds = filteredQuestions.map((q) => q.id);
-  const completedCount = subTopic.questions.filter((q) => q.timeSpent > 0).length;
+  const completedCount = subTopic.questions.filter((q) => q.isCompleted).length;
 
   return (
     <div className="ml-4 border-l-2 border-border-subtle pl-4">
-      {/* Subtopic Header */}
-      <div className="flex items-center gap-2 mb-2 group/st">
-        <button
-          onClick={() => toggleCollapseSubTopic(topicId, subTopic.id)}
-          className="text-text-tertiary hover:text-text-secondary transition-colors"
-        >
-          {subTopic.isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-        </button>
-
+      {/* Subtopic Header — clickable to toggle collapse */}
+      <div
+        className="flex items-center gap-3 mb-2 group/st cursor-pointer select-none py-1.5"
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest('button') || target.closest('input') || target.closest('.drag-handle')) return;
+          toggleCollapseSubTopic(topicId, subTopic.id);
+        }}
+      >
         {isEditing ? (
           <input
             ref={inputRef}
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
             onBlur={handleEditSubmit}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleEditSubmit();
               if (e.key === 'Escape') setIsEditing(false);
             }}
-            className="bg-bg-tertiary border border-border rounded-lg px-2 py-1 text-sm text-text-primary focus:outline-none focus:border-accent"
+            className="bg-bg-tertiary border border-border rounded-lg px-2.5 py-1 text-sm text-text-primary focus:outline-none focus:border-accent"
           />
         ) : (
           <h4 className="text-sm font-semibold text-text-secondary tracking-wide">
@@ -131,77 +135,100 @@ function SubTopicInner({
           </h4>
         )}
 
-        <span className="text-[10px] text-text-tertiary font-mono">
+        <motion.span
+          className="text-text-tertiary shrink-0"
+          animate={{ rotate: subTopic.isCollapsed ? -90 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown size={16} />
+        </motion.span>
+
+        <span className="text-[11px] text-text-tertiary font-mono tabular-nums">
           {completedCount}/{subTopic.questions.length}
         </span>
 
         {/* Progress bar */}
-        <div className="w-16 h-1 bg-bg-tertiary rounded-full overflow-hidden">
+        <div className="w-20 h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
           <div
-            className="h-full bg-accent/60 rounded-full transition-all duration-300"
+            className="h-full rounded-full transition-all duration-300"
             style={{
               width: subTopic.questions.length > 0
                 ? `${(completedCount / subTopic.questions.length) * 100}%`
                 : '0%',
+              background: completedCount === subTopic.questions.length && subTopic.questions.length > 0 ? 'var(--easy)' : 'var(--accent)',
+              opacity: completedCount === 0 ? 0.6 : 1,
             }}
           />
         </div>
 
-        <div className="flex items-center gap-0.5 opacity-0 group-hover/st:opacity-100 transition-opacity ml-auto">
+        <div className="flex items-center gap-1 opacity-0 group-hover/st:opacity-100 transition-opacity ml-auto">
           <button
-            onClick={onAddQuestion}
-            className="p-1 rounded-md text-text-tertiary hover:text-accent hover:bg-accent/10 transition-colors"
+            onClick={(e) => { e.stopPropagation(); onAddQuestion(); }}
+            className="p-1.5 rounded-lg text-text-tertiary hover:text-accent hover:bg-accent/10 transition-colors"
             title="Add question"
           >
-            <Plus size={12} />
+            <Plus size={14} />
           </button>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setEditTitle(subTopic.title);
               setIsEditing(true);
             }}
-            className="p-1 rounded-md text-text-tertiary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+            className="p-1.5 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
           >
-            <Pencil size={12} />
+            <Pencil size={14} />
           </button>
           <button
-            onClick={() => deleteSubTopic(topicId, subTopic.id)}
-            className="p-1 rounded-md text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            onClick={(e) => { e.stopPropagation(); deleteSubTopic(topicId, subTopic.id); }}
+            className="p-1.5 rounded-lg text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
           >
-            <Trash2 size={12} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
 
       {/* Questions */}
-      {!subTopic.isCollapsed && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1.5">
-              {filteredQuestions.map((q, idx) => (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  topicId={topicId}
-                  subTopicId={subTopic.id}
-                  index={idx}
-                  onToggleFavorite={() => toggleFavorite(topicId, subTopic.id, q.id)}
-                  onEdit={(title) => editQuestion(topicId, subTopic.id, q.id, title)}
-                  onDelete={() => deleteQuestion(topicId, subTopic.id, q.id)}
-                  onAddTag={(tag) => addTag(topicId, subTopic.id, q.id, tag)}
-                  onRemoveTag={(tag) => removeTag(topicId, subTopic.id, q.id, tag)}
-                  onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
-                  onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
+      <AnimatePresence initial={false}>
+        {!subTopic.isCollapsed && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 1, 0.5, 1] }}
+            className="overflow-hidden"
+          >
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
+                <div className="space-y-1.5">
+                  {filteredQuestions.map((q, idx) => (
+                    <QuestionCard
+                      key={q.id}
+                      question={q}
+                      topicId={topicId}
+                      subTopicId={subTopic.id}
+                      index={idx}
+                      onToggleFavorite={() => toggleFavorite(topicId, subTopic.id, q.id)}
+                      onToggleComplete={() => toggleComplete(topicId, subTopic.id, q.id)}
+                      onEdit={(title) => editQuestion(topicId, subTopic.id, q.id, title)}
+                      onDelete={() => deleteQuestion(topicId, subTopic.id, q.id)}
+                      onAddTag={(tag) => addTag(topicId, subTopic.id, q.id, tag)}
+                      onRemoveTag={(tag) => removeTag(topicId, subTopic.id, q.id, tag)}
+                      onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
+                      onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
+                      onResetTimer={() => resetTimer(topicId, subTopic.id, q.id)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -214,26 +241,33 @@ export default function SubTopicSection(props: SubTopicSectionProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.subTopic.id });
+  } = useSortable({
+    id: props.subTopic.id,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
+    zIndex: isDragging ? 50 : undefined,
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative ${isDragging ? 'opacity-50 z-50' : ''}`}
+      className={`relative transition-opacity duration-200 ${isDragging ? 'opacity-60' : ''}`}
     >
-      <div className="flex items-start gap-1">
+      <div className="flex items-start gap-1.5">
         <button
-          className="drag-handle mt-2 p-0.5 rounded text-text-tertiary hover:text-text-secondary opacity-40 hover:opacity-100 transition-opacity shrink-0"
+          className="drag-handle mt-3 p-1 rounded-lg text-text-tertiary hover:text-text-secondary opacity-40 hover:opacity-100 transition-all shrink-0"
           {...attributes}
           {...listeners}
         >
-          <GripVertical size={12} />
+          <GripVertical size={14} />
         </button>
         <div className="flex-1">
           <SubTopicInner

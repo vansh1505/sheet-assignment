@@ -27,7 +27,7 @@ interface SheetState {
   editSubTopic: (topicId: string, subTopicId: string, title: string) => void;
   deleteSubTopic: (topicId: string, subTopicId: string) => void;
 
-  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id' | 'isFavorite' | 'tags' | 'timeSpent' | 'isTimerRunning' | 'timerStartedAt'>) => void;
+  addQuestion: (topicId: string, subTopicId: string, question: Omit<Question, 'id' | 'isFavorite' | 'isCompleted' | 'tags' | 'timeSpent' | 'isTimerRunning' | 'timerStartedAt'>) => void;
   editQuestion: (topicId: string, subTopicId: string, questionId: string, title: string) => void;
   deleteQuestion: (topicId: string, subTopicId: string, questionId: string) => void;
 
@@ -41,6 +41,9 @@ interface SheetState {
 
   startTimer: (topicId: string, subTopicId: string, questionId: string) => void;
   stopTimer: (topicId: string, subTopicId: string, questionId: string) => void;
+  resetTimer: (topicId: string, subTopicId: string, questionId: string) => void;
+  toggleComplete: (topicId: string, subTopicId: string, questionId: string) => void;
+  resetAllData: () => void;
 }
 
 function arrayMove<T>(arr: T[], from: number, to: number): T[] {
@@ -205,6 +208,7 @@ export const useSheetStore = create<SheetState>()(
                               ...question,
                               id: uuidv4(),
                               isFavorite: false,
+                              isCompleted: false,
                               tags: [],
                               timeSpent: 0,
                               isTimerRunning: false,
@@ -318,9 +322,41 @@ export const useSheetStore = create<SheetState>()(
               isTimerRunning: false,
               timerStartedAt: null,
               timeSpent: q.timeSpent + elapsed,
+              isCompleted: true,
             };
           }),
         })),
+
+      resetTimer: (topicId, subTopicId, questionId) =>
+        set((s) => ({
+          topics: updateQuestion(s.topics, topicId, subTopicId, questionId, (q) => ({
+            ...q,
+            timeSpent: 0,
+            isTimerRunning: true,
+            timerStartedAt: Date.now(),
+          })),
+        })),
+
+      toggleComplete: (topicId, subTopicId, questionId) =>
+        set((s) => ({
+          topics: updateQuestion(s.topics, topicId, subTopicId, questionId, (q) => ({
+            ...q,
+            isCompleted: !q.isCompleted,
+          })),
+        })),
+
+      resetAllData: () => {
+        localStorage.removeItem('sheet-store');
+        localStorage.removeItem('codolio-study-todos');
+        set({
+          topics: [],
+          sheetName: 'Question Sheet',
+          searchQuery: '',
+          showFavoritesOnly: false,
+          tagFilter: '',
+        });
+        window.location.reload();
+      },
     }),
     {
       name: 'sheet-store',

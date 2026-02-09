@@ -31,11 +31,13 @@ export function transformAPIData(data: APIResponse): { sheetName: string; banner
             title: q.title || q.questionId?.name || 'Untitled',
             difficulty,
             isFavorite: false,
+            isCompleted: false,
             tags: q.questionId?.topics?.slice(0, 3) || [],
             timeSpent: 0,
             isTimerRunning: false,
             timerStartedAt: null,
             platformUrl: q.questionId?.problemUrl,
+            solutionUrl: q.resource,
         };
 
         subTopicMap.get(subTopicName)!.push(question);
