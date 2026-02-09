@@ -25,21 +25,13 @@ import {
 import type { Question } from '@/types/sheet';
 import { ConfirmDeleteModal, NotesModal } from './Modals';
 
+import { useSheetStore } from '@/store/sheetStore';
+
 interface QuestionCardProps {
   question: Question;
   topicId: string;
   subTopicId: string;
   index: number;
-  onToggleFavorite: () => void;
-  onToggleComplete: () => void;
-  onEdit: (title: string) => void;
-  onDelete: () => void;
-  onAddTag: (tag: string) => void;
-  onRemoveTag: (tag: string) => void;
-  onStartTimer: () => void;
-  onStopTimer: () => void;
-  onResetTimer: () => void;
-  onUpdateNotes: (notes: string) => void;
 }
 
 function formatTime(seconds: number): string {
@@ -62,17 +54,32 @@ export const QUESTION_GRID = 'grid grid-cols-[26px_64px_1fr_32px_30px_30px_120px
 
 export default function QuestionCard({
   question,
-  onToggleFavorite,
-  onToggleComplete,
-  onEdit,
-  onDelete,
-  onAddTag,
-  onRemoveTag,
-  onStartTimer,
-  onStopTimer,
-  onResetTimer,
-  onUpdateNotes,
+  topicId,
+  subTopicId,
 }: QuestionCardProps) {
+  const {
+    toggleFavorite,
+    toggleComplete,
+    editQuestion,
+    deleteQuestion,
+    addTag,
+    removeTag,
+    startTimer,
+    stopTimer,
+    resetTimer,
+    updateNotes,
+  } = useSheetStore();
+
+  const onToggleFavorite = () => toggleFavorite(topicId, subTopicId, question.id);
+  const onToggleComplete = () => toggleComplete(topicId, subTopicId, question.id);
+  const onEdit = (title: string) => editQuestion(topicId, subTopicId, question.id, title);
+  const onDelete = () => deleteQuestion(topicId, subTopicId, question.id);
+  const onAddTag = (tag: string) => addTag(topicId, subTopicId, question.id, tag);
+  const onRemoveTag = (tag: string) => removeTag(topicId, subTopicId, question.id, tag);
+  const onStartTimer = () => startTimer(topicId, subTopicId, question.id);
+  const onStopTimer = () => stopTimer(topicId, subTopicId, question.id);
+  const onResetTimer = () => resetTimer(topicId, subTopicId, question.id);
+  const onUpdateNotes = (notes: string) => updateNotes(topicId, subTopicId, question.id, notes);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(question.title);
   const [showTagEditor, setShowTagEditor] = useState(false);

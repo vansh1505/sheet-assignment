@@ -80,14 +80,11 @@ function useSheetStats() {
   }, [topics]);
 }
 
-
-
 export function OverallProgressCard() {
   const stats = useSheetStats();
 
   return <OverallProgress progress={stats.overallProgress} />;
 }
-
 
 export function SheetProgress() {
   const stats = useSheetStats();
@@ -95,7 +92,6 @@ export function SheetProgress() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
         <DifficultyBreakdown
           solvedEasy={stats.solvedEasy}
           totalEasy={stats.totalEasy}
@@ -107,7 +103,6 @@ export function SheetProgress() {
           totalQuestions={stats.totalQuestions}
           favoriteCount={stats.favoriteCount}
         />
-
 
         <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
           <div className="flex items-center gap-2 mb-3">
@@ -125,7 +120,7 @@ export function SheetProgress() {
             </span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {stats.topicBreakdown.map((t, i) => {
+            {stats.topicBreakdown.map((t) => {
               const isComplete = t.total > 0 && t.solved === t.total;
               return (
                 <div key={t.title} className="relative group/dot">
@@ -146,49 +141,8 @@ export function SheetProgress() {
           </div>
         </div>
 
-
         <StudyTodos />
       </div>
-
-      {/* Per-topic progress */}
-      {/* {stats.topicBreakdown.length > 0 && (
-        <div className="mt-4 px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
-          <div className="flex items-center gap-2 mb-3">
-            <BookOpen size={14} className="text-accent" />
-            <span className="text-xs font-semibold text-text-primary uppercase tracking-wider">
-              Topic-wise Progress
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2.5">
-            {stats.topicBreakdown.map((t) => {
-              const pct = t.total > 0 ? Math.round((t.solved / t.total) * 100) : 0;
-              return (
-                <div key={t.title}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-text-secondary truncate mr-2">{t.title}</span>
-                    <span className="text-text-tertiary tabular-nums shrink-0">{t.solved}/{t.total}</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${pct}%`,
-                        background: pct === 100 ? 'var(--easy)' : 'var(--accent)',
-                        opacity: pct === 0 ? 0 : 1,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )} */}
     </div>
   );
 }
-
-export default function SheetStats() {
-  return <OverallProgressCard />;
-}
-

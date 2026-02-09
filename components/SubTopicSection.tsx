@@ -44,17 +44,7 @@ function SubTopicInner({
     editSubTopic,
     deleteSubTopic,
     reorderQuestions,
-    toggleFavorite,
-    editQuestion,
-    deleteQuestion,
-    addTag,
-    removeTag,
-    startTimer,
-    stopTimer,
-    resetTimer,
-    toggleComplete,
     toggleCollapseSubTopic,
-    updateNotes,
     searchQuery,
     showFavoritesOnly,
     tagFilter,
@@ -246,16 +236,6 @@ function SubTopicInner({
                           topicId={topicId}
                           subTopicId={subTopic.id}
                           index={idx}
-                          onToggleFavorite={() => toggleFavorite(topicId, subTopic.id, q.id)}
-                          onToggleComplete={() => toggleComplete(topicId, subTopic.id, q.id)}
-                          onEdit={(title) => editQuestion(topicId, subTopic.id, q.id, title)}
-                          onDelete={() => deleteQuestion(topicId, subTopic.id, q.id)}
-                          onAddTag={(tag) => addTag(topicId, subTopic.id, q.id, tag)}
-                          onRemoveTag={(tag) => removeTag(topicId, subTopic.id, q.id, tag)}
-                          onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
-                          onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
-                          onResetTimer={() => resetTimer(topicId, subTopic.id, q.id)}
-                          onUpdateNotes={(notes) => updateNotes(topicId, subTopic.id, q.id, notes)}
                         />
                       ))}
                     </div>
