@@ -14,6 +14,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import TopicCard from '@/components/TopicCard';
 import { SheetProgress, OverallProgressCard } from '@/components/SheetStats';
@@ -122,107 +123,124 @@ export default function Home() {
       <div className="min-h-screen bg-bg-primary ">
         <Navbar onAddTopic={() => setShowAddTopic(true)} />
 
-        <header className="max-w-7xl mx-auto px-4 sm:px-6 my-8">
-          <div className="flex items-start justify-between gap-6">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-text-primary font-mono">
-                {sheetName}
-              </h1>
-              {description && (
-                <p className="mt-2 text-sm md:text-base text-text-secondary max-w-2xl leading-relaxed">
-                  {description}
-                </p>
-              )}
-              {link && (
-                <a
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-sm text-accent hover:underline"
-                >
-                  View original sheet →
-                </a>
-              )}
-            </div>
-
-            {/* Stats section */}
-            <OverallProgressCard />
-
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2 size={32} className="text-accent animate-spin" />
+            <p className="text-text-tertiary text-sm font-medium">
+              Loading question sheet...
+            </p>
           </div>
-
-        </header>
-
-        {/* Sheet progress section */}
-        {!loading && !error && topics.length > 0 && (
-          <SheetProgress />
-        )}
-
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <Loader2 size={32} className="text-accent animate-spin" />
-              <p className="text-text-tertiary text-sm font-medium">
-                Loading question sheet...
-              </p>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
+              <span className="text-2xl">⚠</span>
             </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
-                <span className="text-2xl">⚠</span>
-              </div>
-              <p className="text-red-400 text-sm font-mono">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 rounded-xl bg-accent text-bg-primary text-sm font-medium hover:bg-accent-hover transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+            <p className="text-red-400 text-sm font-mono">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-xl bg-accent text-bg-primary text-sm font-medium hover:bg-accent-hover transition-colors"
             >
-              <SortableContext
-                items={topics.map((t) => t.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-4">
-                  {topics.map((topic, index) => (
-                    <TopicCard
-                      key={topic.id}
-                      topic={topic}
-                      index={index}
-                      onAddSubTopic={() => handleAddSubTopic(topic.id)}
-                      onAddQuestion={(subTopicId) =>
-                        handleAddQuestion(topic.id, subTopicId)
-                      }
-                    />
-                  ))}
+              Retry
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Header */}
+            <motion.header
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+              className="max-w-7xl mx-auto px-4 sm:px-6 my-8"
+            >
+              <div className="flex items-start justify-between gap-6">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-text-primary font-mono">
+                    {sheetName}
+                  </h1>
+                  {description && (
+                    <p className="mt-2 text-sm md:text-base text-text-secondary max-w-2xl leading-relaxed">
+                      {description}
+                    </p>
+                  )}
+                  {link && (
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-3 text-sm text-accent hover:underline"
+                    >
+                      View original sheet →
+                    </a>
+                  )}
                 </div>
-              </SortableContext>
-            </DndContext>
-          )}
 
-          {!loading && !error && topics.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center">
-                <span className="text-2xl">📋</span>
+                {/* Stats section */}
+                <OverallProgressCard />
               </div>
-              <p className="text-text-tertiary text-sm">
-                No topics yet. Add one to get started.
-              </p>
-              <button
-                onClick={() => setShowAddTopic(true)}
-                className="px-5 py-2.5 rounded-xl bg-accent text-bg-primary text-sm font-medium hover:bg-accent-hover transition-colors"
+            </motion.header>
+
+            {/* Sheet progress section */}
+            {topics.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
               >
-                + Add Topic
-              </button>
-            </div>
-          )}
-        </main>
+                <SheetProgress />
+              </motion.div>
+            )}
+
+            {/* Main content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+              {topics.length > 0 ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={topics.map((t) => t.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="flex flex-col gap-4">
+                      {topics.map((topic, index) => (
+                        <TopicCard
+                          key={topic.id}
+                          topic={topic}
+                          index={index}
+                          onAddSubTopic={() => handleAddSubTopic(topic.id)}
+                          onAddQuestion={(subTopicId) =>
+                            handleAddQuestion(topic.id, subTopicId)
+                          }
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.15, ease: [0.25, 1, 0.5, 1] }}
+                  className="flex flex-col items-center justify-center py-32 gap-4"
+                >
+                  <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center">
+                    <span className="text-2xl">📋</span>
+                  </div>
+                  <p className="text-text-tertiary text-sm">
+                    No topics yet. Add one to get started.
+                  </p>
+                  <button
+                    onClick={() => setShowAddTopic(true)}
+                    className="px-5 py-2.5 rounded-xl bg-accent text-bg-primary text-sm font-medium hover:bg-accent-hover transition-colors"
+                  >
+                    + Add Topic
+                  </button>
+                </motion.div>
+              )}
+            </main>
+          </>
+        )}
 
         {/* Modals */}
         <AddTopicModal

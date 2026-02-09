@@ -152,9 +152,9 @@ export default function TopicCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`animate-fade-in-up ${staggerClass} rounded-2xl border overflow-hidden transition-all duration-200
+      className={`rounded-2xl border transition-shadow duration-200
         ${isDragging
-          ? 'opacity-80 scale-[1.02] border-accent/40 shadow-2xl shadow-accent/10 ring-1 ring-accent/20'
+          ? 'opacity-80 scale-[1.02] border-accent/40 shadow-2xl shadow-accent/10 ring-1 ring-accent/20 z-50'
           : 'border-border bg-bg-secondary/40 hover:bg-bg-secondary/60 shadow-sm'
         }`}
     >
@@ -173,8 +173,8 @@ export default function TopicCard({
         </button>
 
         {/* Icon */}
-        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-          <Layers size={20} className="text-accent" />
+        <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+          <Layers size={16} className="text-accent" />
         </div>
 
         {/* Title + Collapse indicator */}
@@ -194,7 +194,7 @@ export default function TopicCard({
             />
           ) : (
             <>
-              <h3 className="font-heading font-semibold text-base text-text-primary truncate">
+              <h3 className="text-text-primary font-mono tracking-tighter">
                 {topic.title}
               </h3>
               <motion.span

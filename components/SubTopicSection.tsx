@@ -18,7 +18,7 @@ import {
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
-import QuestionCard from './QuestionCard';
+import QuestionCard, { QUESTION_GRID } from './QuestionCard';
 import { ConfirmDeleteModal } from './Modals';
 import type { SubTopic } from '@/types/sheet';
 import { useSheetStore } from '@/store/sheetStore';
@@ -219,26 +219,45 @@ function SubTopicInner({
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={questionIds} strategy={verticalListSortingStrategy}>
-                <div className="space-y-1.5">
-                  {filteredQuestions.map((q, idx) => (
-                    <QuestionCard
-                      key={q.id}
-                      question={q}
-                      topicId={topicId}
-                      subTopicId={subTopic.id}
-                      index={idx}
-                      onToggleFavorite={() => toggleFavorite(topicId, subTopic.id, q.id)}
-                      onToggleComplete={() => toggleComplete(topicId, subTopic.id, q.id)}
-                      onEdit={(title) => editQuestion(topicId, subTopic.id, q.id, title)}
-                      onDelete={() => deleteQuestion(topicId, subTopic.id, q.id)}
-                      onAddTag={(tag) => addTag(topicId, subTopic.id, q.id, tag)}
-                      onRemoveTag={(tag) => removeTag(topicId, subTopic.id, q.id, tag)}
-                      onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
-                      onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
-                      onResetTimer={() => resetTimer(topicId, subTopic.id, q.id)}
-                    />
-                  ))}
-                </div>
+                {filteredQuestions.length === 0 ? (
+                  <div className="flex items-center justify-center py-6 text-sm text-text-tertiary/60">
+                    No questions found
+                  </div>
+                ) : (
+                  <>
+                    {/* Table header */}
+                    <div className={`${QUESTION_GRID} h-7 px-1.5 border-b border-border-subtle/30 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary/60 select-none`}>
+                      <span className="flex justify-center">✓</span>
+                      <span className="flex justify-center">Diff</span>
+                      <span className="pl-6">Problem</span>
+                      <span className="flex justify-center">Link</span>
+                      <span className="flex justify-center">Sol</span>
+                      <span className="flex justify-center">Practice</span>
+                      <span className="flex justify-center">★</span>
+                      <span />
+                    </div>
+                    <div className="space-y-px">
+                      {filteredQuestions.map((q, idx) => (
+                        <QuestionCard
+                          key={q.id}
+                          question={q}
+                          topicId={topicId}
+                          subTopicId={subTopic.id}
+                          index={idx}
+                          onToggleFavorite={() => toggleFavorite(topicId, subTopic.id, q.id)}
+                          onToggleComplete={() => toggleComplete(topicId, subTopic.id, q.id)}
+                          onEdit={(title) => editQuestion(topicId, subTopic.id, q.id, title)}
+                          onDelete={() => deleteQuestion(topicId, subTopic.id, q.id)}
+                          onAddTag={(tag) => addTag(topicId, subTopic.id, q.id, tag)}
+                          onRemoveTag={(tag) => removeTag(topicId, subTopic.id, q.id, tag)}
+                          onStartTimer={() => startTimer(topicId, subTopic.id, q.id)}
+                          onStopTimer={() => stopTimer(topicId, subTopic.id, q.id)}
+                          onResetTimer={() => resetTimer(topicId, subTopic.id, q.id)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </SortableContext>
             </DndContext>
           </motion.div>

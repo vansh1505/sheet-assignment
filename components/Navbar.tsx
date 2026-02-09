@@ -103,15 +103,9 @@ export default function Navbar({ onAddTopic }: NavbarProps) {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-accent/20">
               <Image src="/logo.png" alt="Logo" width={42} height={42} />
             </div>
-            <div>
               <h1 className="font-heading font-bold text-lg text-text-primary leading-tight">
                 {sheetName} - Codolio
               </h1>
-              <p className="text-[10px] text-text-tertiary font-mono tracking-wider uppercase">
-                {completedQuestions}/{totalQuestions} solved
-                {favoriteCount > 0 && ` · ${favoriteCount} starred`}
-              </p>
-            </div>
           </div>
 
           {/* Search + Actions */}

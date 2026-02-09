@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Striver SDE Sheet — Question Tracker",
+  title: "Striver SDE Sheet | Codolio",
   description: "A polished interactive question sheet manager for DSA preparation",
   icons: {
     icon: "/logo.png",

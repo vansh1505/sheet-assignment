@@ -343,6 +343,8 @@ export const useSheetStore = create<SheetState>()(
           topics: updateQuestion(s.topics, topicId, subTopicId, questionId, (q) => ({
             ...q,
             isCompleted: !q.isCompleted,
+            // Reset time when un-completing so Solve button returns
+            ...(!q.isCompleted ? {} : { timeSpent: 0, isTimerRunning: false, timerStartedAt: null }),
           })),
         })),
 
