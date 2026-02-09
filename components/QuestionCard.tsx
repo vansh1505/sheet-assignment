@@ -57,7 +57,7 @@ const difficultyConfig: Record<string, { label: string; color: string }> = {
   Hard: { label: 'Hard', color: 'text-hard' },
 };
 
-/* Grid: Status | Difficulty | Title | Notes | Link | Sol | Solve/Time | Star | Menu */
+
 export const QUESTION_GRID = 'grid grid-cols-[26px_64px_1fr_32px_30px_30px_120px_28px_28px] gap-x-1 items-center';
 
 export default function QuestionCard({
@@ -115,12 +115,12 @@ export default function QuestionCard({
     return () => clearInterval(interval);
   }, [question.isTimerRunning, question.timerStartedAt]);
 
-  // Close menu on outside click
+
   useEffect(() => {
     if (!showMenu) return;
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
-          menuBtnRef.current && !menuBtnRef.current.contains(e.target as Node)) {
+        menuBtnRef.current && !menuBtnRef.current.contains(e.target as Node)) {
         setShowMenu(false);
       }
     };
@@ -128,7 +128,7 @@ export default function QuestionCard({
     return () => document.removeEventListener('mousedown', handler);
   }, [showMenu]);
 
-  // Close menu on scroll
+
   useEffect(() => {
     if (!showMenu) return;
     const handler = () => setShowMenu(false);
@@ -179,7 +179,7 @@ export default function QuestionCard({
   return (
     <>
       <div ref={setNodeRef} style={style}>
-        {/* Main row */}
+
         <div
           className={`group ${QUESTION_GRID} h-10 px-1.5 border-b border-border-subtle/20 transition-colors duration-100
             ${isDragging
@@ -189,7 +189,7 @@ export default function QuestionCard({
                 : 'hover:bg-bg-secondary/40'
             }`}
         >
-          {/* 1 · Status */}
+
           <div className="flex justify-center">
             <button onClick={onToggleComplete} className="flex items-center justify-center">
               <span className={`h-4.5 w-4.5 rounded-full border-2 flex items-center justify-center transition-all
@@ -207,12 +207,12 @@ export default function QuestionCard({
             </button>
           </div>
 
-          {/* 2 · Difficulty */}
+
           <div className="flex justify-center">
             <span className={`text-xs font-semibold ${diff.color}`}>{diff.label}</span>
           </div>
 
-          {/* 3 · Title + inline tags */}
+
           <div className="min-w-0 flex items-center gap-2">
             <button
               className="drag-handle text-text-tertiary opacity-30 hover:opacity-100 transition-opacity cursor-grab shrink-0"
@@ -234,7 +234,7 @@ export default function QuestionCard({
                 {question.title}
               </span>
             )}
-            {/* Inline tags after title */}
+
             {!isEditing && question.tags.length > 0 && (
               <div className="flex items-center gap-1 shrink-0">
                 {visibleTags.map((tag) => (
@@ -254,7 +254,7 @@ export default function QuestionCard({
             )}
           </div>
 
-          {/* 4 · Notes */}
+
           <div className="flex justify-center">
             <button
               onClick={() => setShowNotes(true)}
@@ -265,7 +265,7 @@ export default function QuestionCard({
             </button>
           </div>
 
-          {/* 5 · Platform link */}
+
           <div className="flex justify-center">
             {question.platformUrl ? (
               <a href={question.platformUrl} target="_blank" rel="noopener noreferrer"
@@ -275,7 +275,7 @@ export default function QuestionCard({
             ) : <span />}
           </div>
 
-          {/* 6 · Solution */}
+
           <div className="flex justify-center">
             {question.solutionUrl ? (
               <a href={question.solutionUrl} target="_blank" rel="noopener noreferrer"
@@ -285,7 +285,7 @@ export default function QuestionCard({
             ) : <span />}
           </div>
 
-          {/* 7 · Solve / Timer / Completed */}
+
           <div className="flex items-center justify-center overflow-hidden">
             {question.isTimerRunning ? (
               <button onClick={onStopTimer}
@@ -313,7 +313,7 @@ export default function QuestionCard({
             )}
           </div>
 
-          {/* 8 · Favorite */}
+
           <div className="flex justify-center">
             <button onClick={onToggleFavorite}
               className={`transition-colors ${question.isFavorite ? 'text-favorite' : 'text-text-tertiary hover:text-favorite'}`}>
@@ -321,7 +321,7 @@ export default function QuestionCard({
             </button>
           </div>
 
-          {/* 9 · 3-dot menu */}
+
           <div className="flex justify-center">
             <button
               ref={menuBtnRef}
@@ -333,7 +333,7 @@ export default function QuestionCard({
           </div>
         </div>
 
-        {/* Portal dropdown menu */}
+
         {showMenu && typeof document !== 'undefined' && createPortal(
           <div ref={menuRef} className="fixed z-50" style={{ top: menuPos?.top ?? 0, left: menuPos?.left ?? 0 }}>
             <motion.div
@@ -367,7 +367,7 @@ export default function QuestionCard({
           document.body
         )}
 
-        {/* Expand all tags row */}
+
         <AnimatePresence>
           {showAllTags && question.tags.length > 2 && (
             <motion.div
@@ -388,7 +388,7 @@ export default function QuestionCard({
           )}
         </AnimatePresence>
 
-        {/* Tag editor row */}
+
         <AnimatePresence>
           {showTagEditor && (
             <motion.div

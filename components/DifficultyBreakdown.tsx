@@ -38,7 +38,7 @@ export default function DifficultyBreakdown({
 
   return (
     <div className="flex items-center justify-center gap-5 px-4 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
-      {/* Donut chart */}
+
       <div
         className="relative h-28 w-28 shrink-0 rounded-full"
         style={{ background: gradient }}
@@ -52,7 +52,7 @@ export default function DifficultyBreakdown({
         </div>
       </div>
 
-      {/* Legend */}
+
       <div className="flex-1 space-y-2 w-44 text-text-primary">
         <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1.5">

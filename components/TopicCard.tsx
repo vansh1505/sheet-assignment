@@ -158,12 +158,12 @@ export default function TopicCard({
           : 'border-border bg-bg-secondary/40 hover:bg-bg-secondary/60 shadow-sm'
         }`}
     >
-      {/* Topic Header — clickable to toggle collapse */}
+
       <div
         className="flex items-center gap-4 px-5 py-5 bg-surface-glow cursor-pointer select-none rounded-2xl"
         onClick={handleHeaderClick}
       >
-        {/* Drag Handle */}
+
         <button
           className="drag-handle p-1.5 rounded-lg text-text-tertiary hover:text-text-secondary hover:bg-bg-tertiary transition-all shrink-0"
           {...attributes}
@@ -172,12 +172,12 @@ export default function TopicCard({
           <GripVertical size={18} />
         </button>
 
-        {/* Icon */}
+
         <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
           <Layers size={16} className="text-accent" />
         </div>
 
-        {/* Title + Collapse indicator */}
+
         <div className="flex-1 min-w-0 flex items-center gap-2">
           {isEditing ? (
             <input
@@ -207,7 +207,7 @@ export default function TopicCard({
           )}
         </div>
 
-        {/* Stats */}
+
         <div className="flex items-center gap-3 shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="text-xs text-text-tertiary font-mono tabular-nums">
@@ -225,7 +225,7 @@ export default function TopicCard({
             </div>
           </div>
 
-          {/* Actions */}
+
           <div className="flex items-center gap-1">
             <button
               onClick={(e) => { e.stopPropagation(); onAddSubTopic(); }}
@@ -264,7 +264,7 @@ export default function TopicCard({
         itemName={topic.title}
       />
 
-      {/* Content */}
+
       <AnimatePresence initial={false}>
         {(!topic.isCollapsed || isFilterActive) && (
           <motion.div

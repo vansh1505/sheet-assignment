@@ -115,7 +115,7 @@ function SubTopicInner({
 
   return (
     <div className="ml-4 border-l-2 border-border-subtle pl-4">
-      {/* Subtopic Header — clickable to toggle collapse */}
+
       <div
         className="flex items-center gap-3 mb-2 group/st cursor-pointer select-none py-1.5"
         onClick={(e) => {
@@ -155,7 +155,7 @@ function SubTopicInner({
           {completedCount}/{displayTotal}
         </span>
 
-        {/* Progress bar */}
+
         <div className="w-20 h-1.5 bg-bg-tertiary rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-300"
@@ -204,7 +204,7 @@ function SubTopicInner({
         itemName={subTopic.title}
       />
 
-      {/* Questions */}
+
       <AnimatePresence initial={false}>
         {(!subTopic.isCollapsed || isFilterActive) && (
           <motion.div
@@ -226,9 +226,9 @@ function SubTopicInner({
                   </div>
                 ) : (
                   <>
-                    {/* Table header */}
+
                     <div className={`${QUESTION_GRID} h-7 px-1.5 border-b border-border-subtle/30 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary/60 select-none`}>
-                      <span className="flex justify-center"><Check height={18}/></span>
+                      <span className="flex justify-center"><Check height={18} /></span>
                       <span className="flex justify-center">Difficulty</span>
                       <span className="pl-6">Problem</span>
                       <span className="flex justify-center">Note</span>

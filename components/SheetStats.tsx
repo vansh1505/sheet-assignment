@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useSheetStore } from '@/store/sheetStore';
-import { Layers, BookOpen } from 'lucide-react';
+import { Layers } from 'lucide-react';
 import OverallProgress from './OverallProgress';
 import StudyTodos from './StudyTodos';
 import DifficultyBreakdown from './DifficultyBreakdown';
@@ -81,21 +81,21 @@ function useSheetStats() {
 }
 
 
-/* ─── Difficulty Stats (header inline card — matches original design) ─── */
+
 export function OverallProgressCard() {
   const stats = useSheetStats();
 
   return <OverallProgress progress={stats.overallProgress} />;
 }
 
-/* ─── Sheet Progress (separate section below header) ─── */
+
 export function SheetProgress() {
   const stats = useSheetStats();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Difficulty Breakdown */}
+
         <DifficultyBreakdown
           solvedEasy={stats.solvedEasy}
           totalEasy={stats.totalEasy}
@@ -108,7 +108,7 @@ export function SheetProgress() {
           favoriteCount={stats.favoriteCount}
         />
 
-        {/* Topics Completed */}
+
         <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle">
           <div className="flex items-center gap-2 mb-3">
             <Layers size={14} className="text-accent" />
@@ -130,11 +130,10 @@ export function SheetProgress() {
               return (
                 <div key={t.title} className="relative group/dot">
                   <span
-                    className={`block h-2.5 w-2.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-150 ${
-                      isComplete
-                        ? 'bg-easy shadow-[0_0_6px_rgba(34,197,94,0.4)]'
-                        : 'bg-bg-tertiary border border-white/10'
-                    }`}
+                    className={`block h-2.5 w-2.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-150 ${isComplete
+                      ? 'bg-easy shadow-[0_0_6px_rgba(34,197,94,0.4)]'
+                      : 'bg-bg-tertiary border border-white/10'
+                      }`}
                   />
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 rounded-lg bg-bg-primary border border-border text-xs text-text-primary whitespace-nowrap opacity-0 pointer-events-none group-hover/dot:opacity-100 transition-opacity duration-150 shadow-lg z-50">
                     <span className="font-medium">{t.title}</span>
@@ -147,7 +146,7 @@ export function SheetProgress() {
           </div>
         </div>
 
-        {/* Study Goals (Todo) */}
+
         <StudyTodos />
       </div>
 

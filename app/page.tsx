@@ -63,7 +63,6 @@ export default function Home() {
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error('Failed to fetch sheet data');
         const data: APIResponse = await res.json();
-        console.log('Raw API data:', data);
         const { sheetName, banner, description, link, topics: transformedTopics } = transformAPIData(data);
         setInitialData(sheetName, transformedTopics);
         setBanner(banner);

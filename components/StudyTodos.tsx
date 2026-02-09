@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ListTodo, Plus, Trash2, X, GripVertical } from 'lucide-react';
+import { ListTodo, Plus, Trash2, X } from 'lucide-react';
 
-/* ─── Types ─── */
+
 interface TodoItem {
   id: string;
   text: string;
@@ -13,7 +13,7 @@ interface TodoItem {
 
 const STORAGE_KEY = 'codolio-study-todos';
 
-/* ─── Helpers ─── */
+
 function loadTodos(): TodoItem[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -29,7 +29,7 @@ function saveTodos(todos: TodoItem[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
 }
 
-/* ─── Component ─── */
+
 export default function StudyTodos() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [input, setInput] = useState('');
@@ -37,13 +37,13 @@ export default function StudyTodos() {
   const [showClearDone, setShowClearDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load from localStorage on mount
+
   useEffect(() => {
     setTodos(loadTodos());
     setMounted(true);
   }, []);
 
-  // Persist whenever todos change (skip initial mount)
+
   useEffect(() => {
     if (mounted) saveTodos(todos);
   }, [todos, mounted]);
@@ -82,7 +82,7 @@ export default function StudyTodos() {
   const doneCount = todos.filter((t) => t.done).length;
   const totalCount = todos.length;
 
-  // Avoid hydration mismatch
+
   if (!mounted) {
     return (
       <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle min-h-45">
@@ -99,7 +99,7 @@ export default function StudyTodos() {
 
   return (
     <div className="px-5 py-4 rounded-xl bg-bg-secondary border border-border-subtle flex flex-col">
-      {/* Header */}
+
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <ListTodo size={14} className="text-accent" />
@@ -114,7 +114,7 @@ export default function StudyTodos() {
         )}
       </div>
 
-      {/* Input */}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -141,7 +141,7 @@ export default function StudyTodos() {
         </button>
       </form>
 
-      {/* Progress bar */}
+
       {totalCount > 0 && (
         <div className="w-full h-1 bg-bg-tertiary rounded-full overflow-hidden mb-3">
           <div
@@ -155,7 +155,7 @@ export default function StudyTodos() {
         </div>
       )}
 
-      {/* Todos list */}
+
       <div className="flex-1 space-y-1 max-h-50 overflow-y-auto pr-1">
         {todos.length === 0 && (
           <p className="text-xs text-text-tertiary text-center py-4">
@@ -166,20 +166,18 @@ export default function StudyTodos() {
         {todos.map((todo) => (
           <div
             key={todo.id}
-            className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors ${
-              todo.done
-                ? 'bg-bg-tertiary/50'
-                : 'hover:bg-bg-tertiary/60'
-            }`}
+            className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors ${todo.done
+              ? 'bg-bg-tertiary/50'
+              : 'hover:bg-bg-tertiary/60'
+              }`}
           >
-            {/* Checkbox */}
+
             <button
               onClick={() => toggleTodo(todo.id)}
-              className={`shrink-0 h-4 w-4 rounded border transition-all flex items-center justify-center ${
-                todo.done
-                  ? 'bg-easy/20 border-easy/50'
-                  : 'border-border hover:border-accent'
-              }`}
+              className={`shrink-0 h-4 w-4 rounded border transition-all flex items-center justify-center ${todo.done
+                ? 'bg-easy/20 border-easy/50'
+                : 'border-border hover:border-accent'
+                }`}
               title={todo.done ? 'Mark undone' : 'Mark done'}
             >
               {todo.done && (
@@ -201,18 +199,17 @@ export default function StudyTodos() {
               )}
             </button>
 
-            {/* Text */}
+
             <span
-              className={`flex-1 text-xs leading-snug transition-colors ${
-                todo.done
-                  ? 'line-through text-text-tertiary'
-                  : 'text-text-secondary'
-              }`}
+              className={`flex-1 text-xs leading-snug transition-colors ${todo.done
+                ? 'line-through text-text-tertiary'
+                : 'text-text-secondary'
+                }`}
             >
               {todo.text}
             </span>
 
-            {/* Delete */}
+
             <button
               onClick={() => deleteTodo(todo.id)}
               className="shrink-0 p-0.5 rounded opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-hard transition-all"
@@ -224,7 +221,7 @@ export default function StudyTodos() {
         ))}
       </div>
 
-      {/* Footer — clear completed */}
+
       {doneCount > 0 && (
         <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
           <span className="text-[10px] text-text-tertiary">

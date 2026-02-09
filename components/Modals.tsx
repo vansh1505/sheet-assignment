@@ -49,7 +49,7 @@ function Modal({ isOpen, onClose, title, children }: ModalProps) {
   );
 }
 
-/* ─── Add Topic Modal ─── */
+
 interface AddTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -111,7 +111,7 @@ export function AddTopicModal({ isOpen, onClose, onAdd }: AddTopicModalProps) {
   );
 }
 
-/* ─── Add SubTopic Modal ─── */
+
 interface AddSubTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -182,7 +182,7 @@ export function AddSubTopicModal({
   );
 }
 
-/* ─── Add Question Modal ─── */
+
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -266,15 +266,14 @@ export function AddQuestionModal({
                 key={d}
                 type="button"
                 onClick={() => setDifficulty(d)}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
-                  difficulty === d
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${difficulty === d
                     ? d === 'Easy'
                       ? 'badge-easy border-easy/40'
                       : d === 'Medium'
                         ? 'badge-medium border-medium/40'
                         : 'badge-hard border-hard/40'
                     : 'border-border-subtle text-text-tertiary hover:border-border hover:text-text-secondary'
-                }`}
+                  }`}
               >
                 {d}
               </button>
@@ -335,7 +334,7 @@ export function AddQuestionModal({
   );
 }
 
-/* ─── Confirm Delete Modal ─── */
+
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -398,7 +397,7 @@ export function ConfirmDeleteModal({
   );
 }
 
-/* ─── Notes Modal ─── */
+
 
 interface NotesModalProps {
   isOpen: boolean;
